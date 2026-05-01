@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SimpleBarChart } from "@/components/charts/SimpleBarChart";
+import { SimpleLineChart } from "@/components/charts/SimpleLineChart";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 
 type AttemptRow = {
@@ -118,6 +120,17 @@ export default async function TeacherAnalyticsPage() {
         </div>
       </section>
 
+      <section className="grid gap-3 lg:grid-cols-2">
+        <SimpleBarChart
+          title="Attempts by Grade"
+          points={gradeRows.map((r) => ({ label: `G${r.grade}`, value: r.attempts }))}
+        />
+        <SimpleLineChart
+          title="Average Score by Grade"
+          points={gradeRows.map((r) => ({ label: `G${r.grade}`, value: Math.round(r.avg) }))}
+        />
+      </section>
+
       <section className="card">
         <h2 className="text-lg font-semibold text-ink">By Grade</h2>
         <div className="mt-3 overflow-x-auto">
@@ -160,6 +173,13 @@ export default async function TeacherAnalyticsPage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section className="card">
+        <SimpleBarChart
+          title="Top Subject Activity"
+          points={subjectRows.slice(0, 8).map((r) => ({ label: r.subject, value: r.attempts }))}
+        />
       </section>
     </div>
   );

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SimpleBarChart } from "@/components/charts/SimpleBarChart";
+import { SimpleLineChart } from "@/components/charts/SimpleLineChart";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 
 export default async function AdminDashboardPage() {
@@ -13,7 +15,7 @@ export default async function AdminDashboardPage() {
   if (me?.role !== "admin") redirect("/dashboard");
 
   const admin = createAdminClient();
-  const [students, teachers, admins, subjects, chapters, uploads, attempts] = await Promise.all([
+  const [students, teachers, admins, subjects, chapters, uploads, attempts, recentAttempts] = await Promise.all([
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student"),
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("role", "teacher"),
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("role", "admin"),
@@ -21,7 +23,16 @@ export default async function AdminDashboardPage() {
     admin.from("chapters").select("id", { count: "exact", head: true }),
     admin.from("student_uploads").select("id", { count: "exact", head: true }),
     admin.from("quiz_attempts").select("id", { count: "exact", head: true }),
+    admin.from("quiz_attempts").select("attempted_at").order("attempted_at", { ascending: false }).limit(400),
   ]);
+
+  const last7 = Array.from({ length: 7 }).map((_, idx) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - idx));
+    const key = d.toISOString().slice(0, 10);
+    const count = (recentAttempts.data ?? []).filter((r: any) => String(r.attempted_at).startsWith(key)).length;
+    return { label: key.slice(5), value: count };
+  });
 
   return (
     <div className="space-y-6">
@@ -44,6 +55,21 @@ export default async function AdminDashboardPage() {
         <div className="card"><p className="text-xs uppercase text-ink/40">Subjects</p><p className="mt-1 text-2xl font-bold text-ink">{subjects.count ?? 0}</p></div>
         <div className="card"><p className="text-xs uppercase text-ink/40">Chapters</p><p className="mt-1 text-2xl font-bold text-ink">{chapters.count ?? 0}</p></div>
         <div className="card"><p className="text-xs uppercase text-ink/40">Student Uploads</p><p className="mt-1 text-2xl font-bold text-ink">{uploads.count ?? 0}</p></div>
+      </section>
+
+      <section className="grid gap-3 lg:grid-cols-2">
+        <SimpleBarChart
+          title="Platform Totals"
+          points={[
+            { label: "Students", value: students.count ?? 0 },
+            { label: "Teachers", value: teachers.count ?? 0 },
+            { label: "Admins", value: admins.count ?? 0 },
+            { label: "Subjects", value: subjects.count ?? 0 },
+            { label: "Chapters", value: chapters.count ?? 0 },
+            { label: "Uploads", value: uploads.count ?? 0 },
+          ]}
+        />
+        <SimpleLineChart title="Quiz Attempts (Last 7 Days)" points={last7} />
       </section>
 
       <section className="card">

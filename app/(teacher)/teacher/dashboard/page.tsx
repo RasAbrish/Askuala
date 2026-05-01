@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { SimpleBarChart } from "@/components/charts/SimpleBarChart";
+import { SimpleLineChart } from "@/components/charts/SimpleLineChart";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 
 type AttemptRow = {
@@ -60,6 +62,17 @@ export default async function TeacherDashboardPage() {
       .map((a: AttemptRow) => a.student_id),
   ).size;
 
+  const daily = Array.from({ length: 7 }).map((_, idx) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - idx));
+    const key = d.toISOString().slice(0, 10);
+    const rows = attemptsRows.filter((a) => String(a.attempted_at).startsWith(key));
+    const avg = rows.length
+      ? rows.reduce((s, a) => s + (a.total > 0 ? (a.score / a.total) * 100 : 0), 0) / rows.length
+      : 0;
+    return { label: key.slice(5), value: Math.round(avg) };
+  });
+
   return (
     <div className="space-y-8">
       <section className="card bg-gradient-to-br from-primary to-primary-700 text-white">
@@ -105,6 +118,19 @@ export default async function TeacherDashboardPage() {
             Premium Tier
           </Link>
         </div>
+      </section>
+
+      <section className="grid gap-3 lg:grid-cols-2">
+        <SimpleBarChart
+          title="Class Activity"
+          points={[
+            { label: "Students", value: students },
+            { label: "Attempts", value: attempts },
+            { label: "Uploads", value: uploads },
+            { label: "Active 7d", value: activeStudents },
+          ]}
+        />
+        <SimpleLineChart title="Average Score Trend (7 Days)" points={daily} />
       </section>
     </div>
   );

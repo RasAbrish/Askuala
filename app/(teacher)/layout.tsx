@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { CompactNavMenu } from "@/components/navigation/CompactNavMenu";
 import { ProfileBadgeMenu } from "@/components/profile/ProfileBadgeMenu";
 import { createClient } from "@/lib/supabase/server";
 
@@ -28,7 +29,7 @@ export default async function TeacherLayout({
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <header className="border-b border-[var(--border)] bg-[var(--surface)]">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-3 sm:px-6">
           <Link href="/teacher/dashboard" className="text-xl font-bold text-primary">
             {am ? "አስኩአላ መምህር" : "Askuala Teacher"}
           </Link>
@@ -39,23 +40,17 @@ export default async function TeacherLayout({
             <Button asChild variant="ghost" size="sm">
               <Link href="/teacher/exams/new">{am ? "ፈተናዎች" : "Exams"}</Link>
             </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/teacher/classes">{am ? "ክፍሎች" : "Classes"}</Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/teacher/analytics">{am ? "ትንታኔ" : "Analytics"}</Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/teacher/premium">{am ? "ፕሪሚየም" : "Premium"}</Link>
-            </Button>
-            {profile?.role === "admin" && (
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/admin/dashboard">{am ? "አስተዳዳሪ" : "Admin"}</Link>
-              </Button>
-            )}
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/dashboard">{am ? "የተማሪ እይታ" : "Student View"}</Link>
-            </Button>
+            <div>
+              <CompactNavMenu
+                links={[
+                  { href: "/teacher/classes", label: am ? "ክፍሎች" : "Classes" },
+                  { href: "/teacher/analytics", label: am ? "ትንታኔ" : "Analytics" },
+                  { href: "/teacher/premium", label: am ? "ፕሪሚየም" : "Premium" },
+                  ...(profile?.role === "admin" ? [{ href: "/admin/dashboard", label: am ? "አስተዳዳሪ" : "Admin" }] : []),
+                  { href: "/dashboard", label: am ? "የተማሪ እይታ" : "Student View" },
+                ]}
+              />
+            </div>
             <ProfileBadgeMenu
               displayName={profile?.full_name?.trim() || user.email || "Teacher"}
               email={user.email || ""}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { CompactNavMenu } from "@/components/navigation/CompactNavMenu";
 import { ProfileBadgeMenu } from "@/components/profile/ProfileBadgeMenu";
 import { createClient } from "@/lib/supabase/server";
 
@@ -26,7 +27,7 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <header className="border-b border-[var(--border)] bg-[var(--surface)]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:px-6">
           <Link href="/admin/dashboard" className="text-xl font-bold text-primary">
             Askuala Admin
           </Link>
@@ -37,18 +38,16 @@ export default async function AdminLayout({
             <Button asChild variant="ghost" size="sm">
               <Link href="/admin/users">Users</Link>
             </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/admin/content">Content Ops</Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/admin/integrations">Integrations</Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/teacher/dashboard">Teacher View</Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/dashboard">Student View</Link>
-            </Button>
+            <div>
+              <CompactNavMenu
+                links={[
+                  { href: "/admin/content", label: "Content Ops" },
+                  { href: "/admin/integrations", label: "Integrations" },
+                  { href: "/teacher/dashboard", label: "Teacher View" },
+                  { href: "/dashboard", label: "Student View" },
+                ]}
+              />
+            </div>
             <ProfileBadgeMenu
               displayName={profile?.full_name?.trim() || user.email || "Admin"}
               email={user.email || ""}

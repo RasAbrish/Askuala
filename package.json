@@ -17,7 +17,7 @@
     "ingest": "tsx scripts/ingest-pdf.ts",
     "seed:subjects": "tsx scripts/seed-subjects.ts",
     "seed:textbooks": "tsx scripts/seed-textbooks.ts",
-    "seed:admin": "tsx scripts/seed-admin.ts"
+    "seed:admin": "dotenv -e .env.local -- tsx scripts/seed-admin.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",
@@ -31,6 +31,7 @@
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.45.4",
     "@tanstack/react-query": "^5.100.5",
+    "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
