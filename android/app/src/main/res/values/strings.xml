@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Askuala</string>
+    <string name="title_activity_main">Askuala</string>
+    <string name="package_name">com.askuala.app</string>
+    <string name="custom_url_scheme">com.askuala.app</string>
+</resources>
