@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { GraduationCap, User } from "lucide-react";
 import { tUi } from "@/lib/i18n/ui";
 import type { Language } from "@/lib/supabase/types";
-import { createClient } from "@/lib/supabase/client";
 
 const GRADES = [
   { value: "9", label: "Grade 9" },
@@ -93,20 +92,17 @@ export function ProfileGrade({
     setError(null);
     setSuccess(null);
     try {
-      const reader = new FileReader();
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        reader.onload = () => resolve(String(reader.result ?? ""));
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/profile/avatar", {
+        method: "POST",
+        body: formData,
       });
-
-      const supabase = createClient();
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: { avatar_url: dataUrl },
-      });
-      if (updateError) throw updateError;
-
-      setAvatarUrl(dataUrl);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to upload profile photo.");
+      }
+      setAvatarUrl(String(data.avatarUrl || ""));
       setSuccess("Profile photo updated.");
     } catch (e: any) {
       setError(e.message || "Failed to update profile photo.");
