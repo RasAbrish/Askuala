@@ -15,7 +15,7 @@
  */
 
 import { config as loadEnv } from "dotenv";
-loadEnv({ path: ".env.local" });
+loadEnv({ path: ".env" });
 loadEnv();
 import fs from "node:fs";
 import path from "node:path";

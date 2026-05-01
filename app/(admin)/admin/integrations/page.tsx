@@ -20,8 +20,8 @@ export default async function AdminIntegrationsPage() {
         <ol className="list-decimal space-y-1 pl-5 text-sm text-ink/70">
           <li>Open Telegram and start chat with BotFather.</li>
           <li>Run <code>/newbot</code> and copy your bot token.</li>
-          <li>Set <code>TELEGRAM_BOT_TOKEN</code> in <code>.env.local</code>.</li>
-          <li>Set <code>TELEGRAM_WEBHOOK_SECRET</code> in <code>.env.local</code>.</li>
+          <li>Set <code>TELEGRAM_BOT_TOKEN</code> in <code>.env</code> for local or deployment env vars for production.</li>
+          <li>Set <code>TELEGRAM_WEBHOOK_SECRET</code> in <code>.env</code> for local or deployment env vars for production.</li>
           <li>Run <code>npm run bot:telegram</code> for local polling mode.</li>
           <li>For production, point webhook to your deployment URL.</li>
         </ol>

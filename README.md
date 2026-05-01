@@ -21,10 +21,10 @@ npm install
 ### 3. Configure env
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env
 ```
 
-Fill all required keys in `.env.local`.
+Fill all required keys in `.env`.
 
 ### 4. Seed curriculum data (Grades 9–12)
 
@@ -54,7 +54,7 @@ Open <http://localhost:3000>
 ### Telegram bot
 
 1. Create Telegram bot token via BotFather
-2. Add to `.env.local`:
+2. Add to `.env`:
 ```bash
 TELEGRAM_BOT_TOKEN=...
 ```
@@ -110,7 +110,7 @@ docker compose -f docker-compose.dev.yml down
 1. Configure Twilio sandbox webhook to:
    - `POST /api/whatsapp/webhook`
 2. If local, expose with tunnel (for example `ngrok`)
-3. Add to `.env.local`:
+3. Add to `.env`:
 ```bash
 TWILIO_ACCOUNT_SID=...
 TWILIO_AUTH_TOKEN=...
@@ -209,7 +209,7 @@ npm run smoke:phase34
 
 ### Default Admin Bootstrap
 
-To guarantee one admin account exists in Supabase, set these in `.env.local`:
+To guarantee one admin account exists in Supabase, set these in `.env`:
 
 ```bash
 DEFAULT_ADMIN_EMAIL=admin@example.com

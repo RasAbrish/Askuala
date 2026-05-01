@@ -4,7 +4,7 @@ function client() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error(
-      "GEMINI_API_KEY is not set. Add it to .env.local (see .env.example).",
+      "GEMINI_API_KEY is not set. Add it to environment variables (.env for local, Vercel/Render env for production).",
     );
   }
   return new GoogleGenerativeAI(apiKey);

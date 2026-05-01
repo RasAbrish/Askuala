@@ -4,7 +4,7 @@ services:
     container_name: askuala-web-dev
     working_dir: /app
     env_file:
-      - .env.local
+      - .env
     environment:
       - NODE_ENV=development
     ports:
@@ -21,7 +21,7 @@ services:
     container_name: askuala-telegram-bot-dev
     working_dir: /app
     env_file:
-      - .env.local
+      - .env
     environment:
       - NODE_ENV=development
     command: ["bash", "-lc", "npm install && npx tsx watch bot/telegram/index.ts"]

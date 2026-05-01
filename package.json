@@ -12,12 +12,12 @@
     "cap:copy": "npx cap copy android",
     "cap:apk:debug": "cd android && ./gradlew assembleDebug",
     "smoke:phase34": "bash scripts/smoke-phase34.sh",
-    "bot:telegram": "dotenv -e .env.local -- tsx bot/telegram/index.ts",
-    "bot:whatsapp": "dotenv -e .env.local -- tsx bot/whatsapp/index.ts",
+    "bot:telegram": "dotenv -e .env -- tsx bot/telegram/index.ts",
+    "bot:whatsapp": "dotenv -e .env -- tsx bot/whatsapp/index.ts",
     "ingest": "tsx scripts/ingest-pdf.ts",
     "seed:subjects": "tsx scripts/seed-subjects.ts",
     "seed:textbooks": "tsx scripts/seed-textbooks.ts",
-    "seed:admin": "dotenv -e .env.local -- tsx scripts/seed-admin.ts"
+    "seed:admin": "dotenv -e .env -- tsx scripts/seed-admin.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",

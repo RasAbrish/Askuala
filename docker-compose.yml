@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: askuala-web
     env_file:
-      - .env.local
+      - .env
     ports:
       - "3000:3000"
     restart: unless-stopped
@@ -16,7 +16,7 @@ services:
       dockerfile: Dockerfile
     container_name: askuala-telegram-bot
     env_file:
-      - .env.local
+      - .env
     command: ["npm", "run", "bot:telegram"]
     restart: unless-stopped
     depends_on:

@@ -939,7 +939,7 @@ npm install @supabase/supabase-js @google/generative-ai \
 # 4. Get Gemini key
 # - Go to aistudio.google.com
 # - Create API key
-# - Add to .env.local
+# - Add to .env
 
 # 5. Build first feature (AI Tutor MVP)
 # - Upload one PDF

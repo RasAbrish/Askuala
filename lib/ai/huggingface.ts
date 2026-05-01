@@ -9,7 +9,7 @@ function getApiKey(): string {
   const key = process.env.HF_API_KEY;
   if (!key) {
     throw new Error(
-      "HF_API_KEY is not set. Add it to .env.local (get free key at huggingface.co/settings/tokens).",
+      "HF_API_KEY is not set. Add it to environment variables (.env for local, Vercel/Render env for production).",
     );
   }
   return key;
