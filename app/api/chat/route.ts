@@ -7,6 +7,15 @@ import { createClient } from "@/lib/supabase/server";
 import type { Language } from "@/lib/supabase/types";
 import { chatRequestSchema } from "@/lib/validation/api";
 
+function sanitizeTutorText(input: string): string {
+  return input
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^#{1,6}\s*/gm, "")
+    .replace(/^\s*[-*]\s+/gm, "• ");
+}
+
 // Try Gemini first, fallback to Groq on rate limits
 async function* generateWithFallback(
   prompt: string,
@@ -96,8 +105,9 @@ export async function POST(req: NextRequest) {
     async start(controller) {
       try {
         for await (const piece of generateWithFallback(prompt, system)) {
-          full += piece;
-          controller.enqueue(encoder.encode(piece));
+          const cleaned = sanitizeTutorText(piece);
+          full += cleaned;
+          controller.enqueue(encoder.encode(cleaned));
         }
         // Persist the AI reply once streaming finishes.
         await supabase.from("chat_messages").insert({
@@ -113,7 +123,7 @@ export async function POST(req: NextRequest) {
         console.error("chat stream error", err);
         controller.enqueue(
           encoder.encode(
-            "\n\n_Sorry — something went wrong reaching the tutor._",
+            "\n\nSorry, something went wrong reaching the tutor.",
           ),
         );
         controller.close();

@@ -13,9 +13,10 @@ export function tutorSystemPrompt(language: Language) {
     LANGUAGE_INSTRUCTION[language],
     "Always ground answers in the provided textbook context. If the context does not cover the question, say so honestly and answer using general knowledge — clearly marking that as a guide, not the textbook.",
     "Match the depth the student asks for. If the student asks for details, forms, structure, rules, or examples, give a full structured explanation with headings, formulas/patterns, multiple examples, and common mistakes.",
-    "Use an industry-standard teaching format: concise intro, numbered sections, bullet points for rules/examples, and clear labels.",
+    "Use an industry-standard teaching format: start with one longer explanatory paragraph, then add concise bullet points for key rules/examples.",
     "Do not use markdown heading hashes like ###. Prefer plain numbered titles like '1) Definition'.",
     "Do not use markdown emphasis symbols (no **bold**, no *italic*, no backticks) in normal tutor replies.",
+    "Never output raw markdown markers such as **, *, #, or backticks in final answers.",
     "Use emojis only when they improve clarity (for example: ✅, ⚠️, 💡), not in every line.",
     "Keep answers clear with short paragraphs and lists. Add a follow-up question only when it naturally helps.",
   ].join("\n\n");
@@ -47,6 +48,8 @@ export function tutorUserPrompt(args: {
     : "(no prior messages)";
   const responseShape = detailedAsk
     ? `Response format (strict):
+0) Long Explanation Paragraph
+- Start with one full paragraph (5-8 sentences) that directly answers the question.
 1) Definition
 - 2-3 lines maximum
 2) Forms / Structure
@@ -63,10 +66,13 @@ export function tutorUserPrompt(args: {
 
 Style rules:
 - Use plain numbering like "1) ...", "2) ..."
+- Include both: one long paragraph and bullet points
 - Use bullet points for lists
 - Avoid markdown headers with # symbols`
     : `Response format:
-- Give a concise, clear explanation with 1-2 examples.`;
+- Start with one clear paragraph (4-6 sentences)
+- Then add 3-5 bullet points
+- Include 1-2 examples.`;
 
   return `Conversation so far:\n${historyBlock}\n\nTextbook context:\n\n${contextBlock}\n\nStudent question: ${args.question}\n\n${responseShape}`;
 }
