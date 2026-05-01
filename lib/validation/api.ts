@@ -40,7 +40,7 @@ export const chatRequestSchema = z.object({
 });
 
 export const quizGenerateSchema = sourceSchema.extend({
-  count: z.number().int().min(1).max(20).default(5),
+  count: z.number().int().min(1).max(40).default(10),
 });
 
 export const flashcardsGenerateSchema = sourceSchema.extend({

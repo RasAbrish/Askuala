@@ -9,7 +9,9 @@ import { tUi } from "@/lib/i18n/ui";
 import type { Flashcard, Language, Question } from "@/lib/supabase/types";
 
 type Tab = "summary" | "flashcards" | "quiz" | "tutor";
-const QUIZ_COUNT_OPTIONS = [5, 10, 15, 20];
+const DEFAULT_QUIZ_COUNT = 10;
+const MIN_QUIZ_COUNT = 1;
+const MAX_QUIZ_COUNT = 40;
 
 interface Props {
   uploadId: string;
@@ -31,7 +33,7 @@ export function StudyTabs({
   // Quiz state — generated lazily
   const [quiz, setQuiz] = useState(initialQuiz);
   const [quizVariant, setQuizVariant] = useState(initialQuiz ? 1 : 0);
-  const [quizCount, setQuizCount] = useState(10);
+  const [quizCount, setQuizCount] = useState(DEFAULT_QUIZ_COUNT);
   const summaryQuery = useQuery({
     queryKey: ["upload-summary", uploadId],
     queryFn: async () => {
@@ -47,10 +49,11 @@ export function StudyTabs({
 
   const quizMutation = useMutation({
     mutationFn: async () => {
+      const safeCount = Math.min(MAX_QUIZ_COUNT, Math.max(MIN_QUIZ_COUNT, quizCount || DEFAULT_QUIZ_COUNT));
       const res = await fetch("/api/quiz/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uploadId, count: quizCount }),
+        body: JSON.stringify({ uploadId, count: safeCount }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to generate quiz.");
@@ -120,21 +123,22 @@ export function StudyTabs({
           {!quiz ? (
             <div className="card text-center">
               <p className="mb-4 text-ink/70">
-                {tUi(language, "upload.generateQuiz")} ({quizCount})
+                Set how many questions you want, then generate the quiz.
               </p>
               <div className="mx-auto mb-4 max-w-xs text-left">
                 <label className="mb-1 block text-sm font-medium text-ink">Number of questions</label>
-                <select
+                <input
+                  type="number"
+                  min={MIN_QUIZ_COUNT}
+                  max={MAX_QUIZ_COUNT}
+                  step={1}
                   value={quizCount}
                   onChange={(e) => setQuizCount(Number(e.target.value))}
                   className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
-                >
-                  {QUIZ_COUNT_OPTIONS.map((count) => (
-                    <option key={count} value={count}>
-                      {count} questions
-                    </option>
-                  ))}
-                </select>
+                />
+                <p className="mt-1 text-xs text-ink/50">
+                  Enter any value from {MIN_QUIZ_COUNT} to {MAX_QUIZ_COUNT}. Default is {DEFAULT_QUIZ_COUNT}.
+                </p>
               </div>
               <button
                 onClick={() => quizMutation.mutate()}
@@ -151,17 +155,29 @@ export function StudyTabs({
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <span className="rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
                   {tUi(language, "quiz.variant")} #{quizVariant}
                 </span>
-                <button
-                  onClick={() => quizMutation.mutate()}
-                  disabled={quizMutation.isPending}
-                  className="btn-ghost border border-black/10"
-                >
-                  {quizMutation.isPending ? tUi(language, "upload.regenerating") : tUi(language, "quiz.regenerate")}
-                </button>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <input
+                    type="number"
+                    min={MIN_QUIZ_COUNT}
+                    max={MAX_QUIZ_COUNT}
+                    step={1}
+                    value={quizCount}
+                    onChange={(e) => setQuizCount(Number(e.target.value))}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40 sm:w-36"
+                    aria-label="Number of questions"
+                  />
+                  <button
+                    onClick={() => quizMutation.mutate()}
+                    disabled={quizMutation.isPending}
+                    className="btn-ghost border border-black/10"
+                  >
+                    {quizMutation.isPending ? tUi(language, "upload.regenerating") : tUi(language, "quiz.regenerate")}
+                  </button>
+                </div>
               </div>
               {quizMutation.isError && (
                 <p className="text-sm text-red-600">{quizMutation.error.message}</p>

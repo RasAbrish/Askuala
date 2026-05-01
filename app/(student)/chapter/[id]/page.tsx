@@ -87,7 +87,7 @@ export default async function ChapterPage({
           <div className="text-3xl">📝</div>
           <p className="mt-2 font-semibold">{tUi(language, "chapter.practiceQuiz")}</p>
           <p className="mt-1 text-xs text-ink/50">
-            10 {tUi(language, "chapter.quizDesc")}
+            {tUi(language, "chapter.quizDesc")}
           </p>
         </Link>
       </div>

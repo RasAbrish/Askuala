@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const QUIZ_COUNT_OPTIONS = [5, 10, 15, 20];
+const MIN_QUIZ_COUNT = 1;
+const MAX_QUIZ_COUNT = 40;
 
 export default function GenerateQuizPage({
   params,
@@ -18,11 +19,12 @@ export default function GenerateQuizPage({
   async function generate() {
     setGenerating(true);
     setError(null);
+    const safeCount = Math.min(MAX_QUIZ_COUNT, Math.max(MIN_QUIZ_COUNT, quizCount || 10));
     try {
       const res = await fetch("/api/quiz/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chapterId: params.id, count: quizCount }),
+        body: JSON.stringify({ chapterId: params.id, count: safeCount }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to generate quiz");
@@ -41,17 +43,18 @@ export default function GenerateQuizPage({
       </p>
       <div className="mt-4 text-left">
         <label className="mb-1 block text-sm font-medium text-ink">Number of questions</label>
-        <select
+        <input
+          type="number"
+          min={MIN_QUIZ_COUNT}
+          max={MAX_QUIZ_COUNT}
+          step={1}
           value={quizCount}
           onChange={(e) => setQuizCount(Number(e.target.value))}
           className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
-        >
-          {QUIZ_COUNT_OPTIONS.map((count) => (
-            <option key={count} value={count}>
-              {count} questions
-            </option>
-          ))}
-        </select>
+        />
+        <p className="mt-1 text-xs text-ink/60">
+          Enter any value from {MIN_QUIZ_COUNT} to {MAX_QUIZ_COUNT}.
+        </p>
       </div>
       <button
         onClick={generate}
