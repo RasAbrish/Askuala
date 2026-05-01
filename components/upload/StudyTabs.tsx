@@ -9,7 +9,7 @@ import { tUi } from "@/lib/i18n/ui";
 import type { Flashcard, Language, Question } from "@/lib/supabase/types";
 
 type Tab = "summary" | "flashcards" | "quiz" | "tutor";
-const QUIZ_COUNT = 10;
+const QUIZ_COUNT_OPTIONS = [5, 10, 15, 20];
 
 interface Props {
   uploadId: string;
@@ -31,6 +31,7 @@ export function StudyTabs({
   // Quiz state — generated lazily
   const [quiz, setQuiz] = useState(initialQuiz);
   const [quizVariant, setQuizVariant] = useState(initialQuiz ? 1 : 0);
+  const [quizCount, setQuizCount] = useState(10);
   const summaryQuery = useQuery({
     queryKey: ["upload-summary", uploadId],
     queryFn: async () => {
@@ -49,7 +50,7 @@ export function StudyTabs({
       const res = await fetch("/api/quiz/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uploadId, count: QUIZ_COUNT }),
+        body: JSON.stringify({ uploadId, count: quizCount }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to generate quiz.");
@@ -119,8 +120,22 @@ export function StudyTabs({
           {!quiz ? (
             <div className="card text-center">
               <p className="mb-4 text-ink/70">
-                {tUi(language, "upload.generateQuiz")} ({QUIZ_COUNT})
+                {tUi(language, "upload.generateQuiz")} ({quizCount})
               </p>
+              <div className="mx-auto mb-4 max-w-xs text-left">
+                <label className="mb-1 block text-sm font-medium text-ink">Number of questions</label>
+                <select
+                  value={quizCount}
+                  onChange={(e) => setQuizCount(Number(e.target.value))}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
+                >
+                  {QUIZ_COUNT_OPTIONS.map((count) => (
+                    <option key={count} value={count}>
+                      {count} questions
+                    </option>
+                  ))}
+                </select>
+              </div>
               <button
                 onClick={() => quizMutation.mutate()}
                 disabled={quizMutation.isPending}
