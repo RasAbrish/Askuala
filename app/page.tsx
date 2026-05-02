@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { HeroCarousel } from "@/components/landing/HeroCarousel";
 import { LandingNavLink } from "@/components/navigation/LandingNavLink";
+import { Button } from "@/components/ui/button";
 
 const FEATURES = [
   {
@@ -92,15 +93,15 @@ const PROBLEMS = [
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-paper via-white to-paper">
+    <main className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-white/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-700 text-white font-bold text-lg">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-700 text-primary-foreground font-bold text-lg">
               A
             </div>
-            <span className="text-2xl font-bold tracking-tight text-slate-800">Askuala</span>
+            <span className="text-2xl font-bold tracking-tight text-foreground">Askuala</span>
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             <LandingNavLink href="#features" label="Features" />
@@ -108,12 +109,12 @@ export default function HomePage() {
             <LandingNavLink href="#about" label="About" />
           </nav>
           <div className="flex items-center gap-2">
-            <Link href="/login" className="btn-ghost text-sm">
-              Sign in
-            </Link>
-            <Link href="/signup" className="btn-primary text-sm">
-              Get Started Free
-            </Link>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/login">Sign in</Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link href="/signup">Get Started Free</Link>
+            </Button>
           </div>
         </div>
       </header>
@@ -129,28 +130,30 @@ export default function HomePage() {
                 AI Learning OS for Ethiopian Students
               </div>
               
-              <h1 className="animate-rise mt-4 sm:mt-6 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight text-slate-800" style={{ ["--stagger" as any]: "100ms" }}>
+              <h1 className="animate-rise mt-4 sm:mt-6 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight text-foreground" style={{ ["--stagger" as any]: "100ms" }}>
                 Turn any textbook into your{" "}
                 <span className="bg-gradient-to-r from-primary to-primary-700 bg-clip-text text-transparent">
                   personal AI tutor
                 </span>
               </h1>
               
-              <p className="animate-rise mt-4 sm:mt-6 text-base sm:text-lg lg:text-xl text-slate-600" style={{ ["--stagger" as any]: "200ms" }}>
+              <p className="animate-rise mt-4 sm:mt-6 text-base sm:text-lg lg:text-xl text-muted-foreground" style={{ ["--stagger" as any]: "200ms" }}>
                 Askuala helps Ethiopian students study smarter with AI-powered summaries, quizzes, flashcards, and multilingual tutoring — from any learning material.
               </p>
               
               <div className="animate-rise mt-6 sm:mt-8 flex flex-col gap-3 sm:flex-row" style={{ ["--stagger" as any]: "300ms" }}>
-                <Link href="/signup" className="btn-primary px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base justify-center">
-                  Start Learning Free
-                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-                </Link>
-                <Link href="#how-it-works" className="btn-secondary px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base justify-center">
-                  See How It Works
-                </Link>
+                <Button asChild size="lg" className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base">
+                  <Link href="/signup">
+                    Start Learning Free
+                    <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  </Link>
+                </Button>
+                <Button asChild variant="secondary" size="lg" className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base">
+                  <Link href="#how-it-works">See How It Works</Link>
+                </Button>
               </div>
               
-              <div className="animate-rise mt-6 sm:mt-8 flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm text-slate-600" style={{ ["--stagger" as any]: "400ms" }}>
+              <div className="animate-rise mt-6 sm:mt-8 flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground" style={{ ["--stagger" as any]: "400ms" }}>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
                   <span>Free for students</span>
