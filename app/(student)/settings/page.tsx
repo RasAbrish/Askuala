@@ -20,10 +20,10 @@ export default async function SettingsPage() {
   const language = (profile?.language_pref ?? "en") as Language;
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-4xl space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-ink">{tUi(language, "settings.title")}</h1>
-        <p className="text-sm text-ink/60">
+        <h1 className="text-3xl font-bold text-slate-800">{tUi(language, "settings.title")}</h1>
+        <p className="mt-2 text-slate-600">
           {tUi(language, "settings.desc")}
         </p>
       </div>

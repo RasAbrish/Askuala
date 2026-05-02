@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Camera, FileText } from "lucide-react";
+import { Upload, Camera, FileText, Sparkles } from "lucide-react";
 import { tUi } from "@/lib/i18n/ui";
 import type { Language } from "@/lib/supabase/types";
 
@@ -117,31 +117,33 @@ export function DropZone({ language = "en" }: { language?: Language }) {
   }
 
   return (
-    <Card>
-      <CardContent className="p-5">
-        <div className="mb-4 flex gap-1 rounded-lg bg-stone-100 p-1 text-sm">
+    <Card className="overflow-hidden border-slate-200 shadow-xl">
+      <CardContent className="p-4 sm:p-6">
+        <div className="mb-4 flex gap-2 rounded-xl bg-slate-100 p-1.5 sm:mb-6">
           <Button
             type="button"
             variant={mode === "file" ? "default" : "ghost"}
-            className="flex-1"
+            className="flex-1 rounded-lg text-xs sm:text-sm"
             onClick={() => setMode("file")}
           >
-            <Upload className="mr-2 h-4 w-4" />
-            {tUi(language, "upload.uploadFile")}
+            <Upload className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">{tUi(language, "upload.uploadFile")}</span>
+            <span className="sm:hidden">Upload</span>
           </Button>
           <Button
             type="button"
             variant={mode === "text" ? "default" : "ghost"}
-            className="flex-1"
+            className="flex-1 rounded-lg text-xs sm:text-sm"
             onClick={() => setMode("text")}
           >
-            <FileText className="mr-2 h-4 w-4" />
-            {tUi(language, "upload.pasteText")}
+            <FileText className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">{tUi(language, "upload.pasteText")}</span>
+            <span className="sm:hidden">Text</span>
           </Button>
         </div>
 
         <Input
-          className="mb-3"
+          className="mb-4 text-sm"
           placeholder={tUi(language, "upload.titlePlaceholder")}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -152,33 +154,44 @@ export function DropZone({ language = "en" }: { language?: Language }) {
         <div
           onDrop={onDrop}
           onDragOver={(e) => e.preventDefault()}
-          className="rounded-2xl border-2 border-dashed border-primary/40 bg-primary-50/40 p-8 text-center"
+          className="relative overflow-hidden rounded-2xl border-2 border-dashed border-primary/40 bg-gradient-to-br from-primary-50/50 to-accent-50/30 p-6 text-center transition-all hover:border-primary hover:bg-primary-50/60 sm:rounded-3xl sm:p-12"
         >
-          <div className="text-4xl">📤</div>
-          <p className="mt-2 font-medium text-ink">
-            {tUi(language, "upload.dragDrop")}
-          </p>
-          <p className="mt-1 text-xs text-ink/50">
-            {tUi(language, "upload.dragHintPdf")}
-          </p>
-          <div className="mt-4 flex justify-center gap-2">
-            <Button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              disabled={busy}
-            >
-              <Upload className="mr-2 h-4 w-4" />
-              {tUi(language, "upload.chooseFile")}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => cameraRef.current?.click()}
-              disabled={busy}
-            >
-              <Camera className="mr-2 h-4 w-4" />
-              {tUi(language, "upload.takePhoto")}
-            </Button>
+          <div className="relative z-10">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-white shadow-md sm:h-20 sm:w-20">
+              <Upload className="h-8 w-8 sm:h-10 sm:w-10" />
+            </div>
+            <h3 className="mt-3 text-base font-bold text-slate-800 sm:mt-4 sm:text-lg">
+              {tUi(language, "upload.dragDrop")}
+            </h3>
+            <p className="mt-1 text-xs text-slate-600 sm:mt-2 sm:text-sm">
+              {tUi(language, "upload.dragHintPdf")}
+            </p>
+            <div className="mt-4 flex flex-col justify-center gap-2 sm:mt-6 sm:flex-row sm:gap-3">
+              <Button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                disabled={busy}
+                className="btn-primary w-full text-sm sm:w-auto"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {tUi(language, "upload.chooseFile")}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => cameraRef.current?.click()}
+                disabled={busy}
+                className="w-full text-sm sm:w-auto"
+              >
+                <Camera className="mr-2 h-4 w-4" />
+                {tUi(language, "upload.takePhoto")}
+              </Button>
+            </div>
+            <div className="mt-3 flex flex-wrap justify-center gap-2 text-xs sm:mt-4">
+              <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700">PDF</span>
+              <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700">Images</span>
+              <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700">Text</span>
+            </div>
           </div>
           <input
             ref={fileRef}
@@ -201,11 +214,13 @@ export function DropZone({ language = "en" }: { language?: Language }) {
               if (f) uploadFile(f);
             }}
           />
+          <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-primary/10 blur-3xl sm:h-32 sm:w-32" />
+          <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-accent/10 blur-3xl sm:h-32 sm:w-32" />
         </div>
       ) : (
         <div>
           <Textarea
-            className="min-h-[200px]"
+            className="min-h-[200px] text-sm sm:min-h-[240px]"
             placeholder={tUi(language, "upload.pastePlaceholder")}
             value={pasted}
             onChange={(e) => setPasted(e.target.value)}
@@ -214,22 +229,26 @@ export function DropZone({ language = "en" }: { language?: Language }) {
           <Button
             onClick={uploadText}
             disabled={busy || pasted.trim().length < 80}
-            className="mt-3 w-full"
+            className="btn-primary mt-4 w-full text-sm"
           >
+            <Sparkles className="mr-2 h-4 w-4" />
             {tUi(language, "upload.processOpen")}
           </Button>
         </div>
       )}
 
         {status && (
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            <span className="inline-block animate-pulse">●</span> {status}
-          </p>
+          <div className="mt-4 rounded-xl bg-primary-50 px-3 py-2 text-center sm:mt-6 sm:px-4 sm:py-3">
+            <div className="flex items-center justify-center gap-2">
+              <div className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+              <p className="text-xs font-medium text-primary sm:text-sm">{status}</p>
+            </div>
+          </div>
         )}
         {error && (
-          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
+          <div className="mt-4 rounded-xl bg-red-50 px-3 py-2 sm:px-4 sm:py-3">
+            <p className="text-xs font-medium text-red-700 sm:text-sm">{error}</p>
+          </div>
         )}
       </CardContent>
     </Card>

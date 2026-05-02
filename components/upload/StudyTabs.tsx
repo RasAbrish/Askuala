@@ -18,6 +18,7 @@ interface Props {
   uploadTitle: string;
   initialFlashcards: Flashcard[];
   quiz: { id: string; questions: Question[]; timeLimitSeconds?: number | null } | null;
+  initialTutorMessages?: { role: "user" | "ai"; content: string }[];
   language?: Language;
 }
 
@@ -26,6 +27,7 @@ export function StudyTabs({
   uploadTitle,
   initialFlashcards,
   quiz: initialQuiz,
+  initialTutorMessages = [],
   language = "en",
 }: Props) {
   const [tab, setTab] = useState<Tab>("summary");
@@ -197,6 +199,7 @@ export function StudyTabs({
         <ChatPanel
           uploadId={uploadId}
           chapterTitle={uploadTitle}
+          initialMessages={initialTutorMessages}
           language={language}
           suggestions={[
             tUi(language, "tutor.suggestionsSummary"),

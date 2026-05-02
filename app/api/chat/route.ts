@@ -46,6 +46,36 @@ async function* generateWithFallback(
 
 export const runtime = "nodejs";
 
+type ChatTurn = { role: "user" | "ai"; content: string };
+
+async function loadRecentHistory(params: {
+  supabase: ReturnType<typeof createClient>;
+  userId: string;
+  chapterId?: string;
+  uploadId?: string;
+}): Promise<ChatTurn[]> {
+  let query = params.supabase
+    .from("chat_messages")
+    .select("role, content, created_at")
+    .eq("student_id", params.userId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (params.uploadId) {
+    query = query.eq("upload_id", params.uploadId);
+  } else if (params.chapterId) {
+    query = query.eq("chapter_id", params.chapterId).is("upload_id", null);
+  } else {
+    query = query.is("chapter_id", null).is("upload_id", null);
+  }
+
+  const { data } = await query;
+  return (data ?? [])
+    .reverse()
+    .map((m) => ({ role: m.role as "user" | "ai", content: String(m.content ?? "").trim() }))
+    .filter((m) => m.content.length > 0);
+}
+
 export async function POST(req: NextRequest) {
   const parsed = chatRequestSchema.safeParse(await req.json());
   if (!parsed.success) {
@@ -87,6 +117,14 @@ export async function POST(req: NextRequest) {
     language,
   });
 
+  const dbHistory = await loadRecentHistory({
+    supabase,
+    userId: user.id,
+    chapterId,
+    uploadId,
+  });
+  const effectiveHistory = dbHistory.length ? dbHistory : (history ?? []);
+
   const system = tutorSystemPrompt(language);
   const prompt = tutorUserPrompt({
     question,
@@ -95,7 +133,7 @@ export async function POST(req: NextRequest) {
       page_number: c.page_number,
     })),
     language,
-    history: history ?? [],
+    history: effectiveHistory,
   });
 
   const encoder = new TextEncoder();

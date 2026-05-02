@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { StudyTabs } from "@/components/upload/StudyTabs";
 import { tUi } from "@/lib/i18n/ui";
 import { createClient } from "@/lib/supabase/server";
-import type { Flashcard, Language, Question } from "@/lib/supabase/types";
+import type { ChatMessage, Flashcard, Language, Question } from "@/lib/supabase/types";
 
 export default async function UploadStudyPage({
   params,
@@ -61,6 +61,17 @@ export default async function UploadStudyPage({
     };
   }
 
+  const { data: tutorHistory } = (await supabase
+    .from("chat_messages")
+    .select("role, content")
+    .eq("student_id", user.id)
+    .eq("upload_id", upload.id)
+    .order("created_at", { ascending: true })
+    .limit(30)) as { data: Pick<ChatMessage, "role" | "content">[] | null };
+  const initialTutorMessages = (tutorHistory ?? [])
+    .map((m) => ({ role: m.role, content: m.content?.trim() ?? "" }))
+    .filter((m) => m.content.length > 0);
+
   return (
     <div className="space-y-6">
       <div>
@@ -78,6 +89,7 @@ export default async function UploadStudyPage({
         uploadTitle={upload.title}
         initialFlashcards={flashcards ?? []}
         quiz={quizData}
+        initialTutorMessages={initialTutorMessages}
         language={language}
       />
     </div>

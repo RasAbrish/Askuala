@@ -74,63 +74,117 @@ export default async function TeacherDashboardPage() {
   });
 
   return (
-    <div className="space-y-8">
-      <section className="card bg-gradient-to-br from-primary to-primary-700 text-white">
-        <p className="text-sm uppercase tracking-wide opacity-80">Teacher mode</p>
-        <h1 className="mt-1 text-2xl font-bold">School Dashboard</h1>
-        <p className="mt-1 text-sm opacity-90">
-          Welcome, {profile?.full_name?.trim() || user.email}. Here is a live overview of learner activity.
-        </p>
+    <div className="space-y-6">
+      {/* Welcome Hero Card */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary-600 to-primary-700 p-8 text-white shadow-2xl">
+        <div className="relative z-10">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm font-medium uppercase tracking-wider text-primary-100">
+                Teacher Mode
+              </p>
+              <h1 className="mt-2 text-3xl font-bold sm:text-4xl">
+                School Dashboard
+              </h1>
+              <p className="mt-2 text-base text-primary-100">
+                Welcome, {profile?.full_name?.trim() || user.email}. Here is a live overview of learner activity.
+              </p>
+            </div>
+            {activeStudents > 0 && (
+              <div className="rounded-2xl bg-white/10 px-4 py-3 text-center backdrop-blur-sm">
+                <p className="text-3xl font-bold">{activeStudents}</p>
+                <p className="text-xs text-primary-100">Active 7d</p>
+              </div>
+            )}
+          </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/teacher/exams/new"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-primary transition-all hover:bg-primary-50 hover:shadow-md"
+            >
+              Build Custom Exam
+            </Link>
+            <Link
+              href="/teacher/analytics"
+              className="inline-flex items-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 px-6 py-3 font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20"
+            >
+              Open Analytics
+            </Link>
+          </div>
+        </div>
+        <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-48 w-48 rounded-full bg-white/5 blur-3xl" />
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="card">
-          <p className="text-xs uppercase tracking-wide text-ink/40">Students</p>
-          <p className="mt-1 text-2xl font-bold text-ink">{students}</p>
-        </div>
-        <div className="card">
-          <p className="text-xs uppercase tracking-wide text-ink/40">Quiz attempts</p>
-          <p className="mt-1 text-2xl font-bold text-ink">{attempts}</p>
-        </div>
-        <div className="card">
-          <p className="text-xs uppercase tracking-wide text-ink/40">Study uploads</p>
-          <p className="mt-1 text-2xl font-bold text-ink">{uploads}</p>
-        </div>
-        <div className="card">
-          <p className="text-xs uppercase tracking-wide text-ink/40">Average score</p>
-          <p className="mt-1 text-2xl font-bold text-primary">{pct(avgScore)}</p>
+      {/* Stats Grid */}
+      <section>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="card group hover-lift bg-gradient-to-br from-white to-primary-50">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Students
+            </p>
+            <p className="mt-3 text-4xl font-bold text-slate-800">{students}</p>
+            <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
+          </div>
+          <div className="card group hover-lift bg-gradient-to-br from-white to-accent-50">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Quiz Attempts
+            </p>
+            <p className="mt-3 text-4xl font-bold text-slate-800">{attempts}</p>
+            <div className="mt-2 h-1 w-12 rounded-full bg-accent" />
+          </div>
+          <div className="card group hover-lift bg-gradient-to-br from-white to-blue-50">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Study Uploads
+            </p>
+            <p className="mt-3 text-4xl font-bold text-slate-800">{uploads}</p>
+            <div className="mt-2 h-1 w-12 rounded-full bg-blue-500" />
+          </div>
+          <div className="card group hover-lift bg-gradient-to-br from-white to-green-50">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Average Score
+            </p>
+            <p className="mt-3 text-4xl font-bold text-primary">{pct(avgScore)}</p>
+            <div className="mt-2 h-1 w-12 rounded-full bg-green-500" />
+          </div>
         </div>
       </section>
 
-      <section className="card">
-        <h2 className="text-lg font-semibold text-ink">Recent Performance Snapshot</h2>
-        <p className="mt-1 text-sm text-ink/60">
+      {/* Charts Section */}
+      <section className="grid gap-4 lg:grid-cols-2">
+        <div className="card hover-lift">
+          <SimpleBarChart
+            title="Class Activity"
+            points={[
+              { label: "Students", value: students },
+              { label: "Attempts", value: attempts },
+              { label: "Uploads", value: uploads },
+              { label: "Active 7d", value: activeStudents },
+            ]}
+          />
+        </div>
+        <div className="card hover-lift">
+          <SimpleLineChart title="Average Score Trend (7 Days)" points={daily} />
+        </div>
+      </section>
+
+      {/* Quick Actions */}
+      <section className="card bg-gradient-to-br from-primary-50 to-accent-50">
+        <h2 className="text-xl font-bold text-slate-800">Quick Actions</h2>
+        <p className="mt-2 text-sm text-slate-600">
           Based on the latest {attemptsRows.length} attempts. Active students in last 7 days: {activeStudents}.
         </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Link href="/teacher/exams/new" className="btn-primary inline-flex">
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link href="/teacher/exams/new" className="btn-primary">
             Build Custom Exam
           </Link>
-          <Link href="/teacher/analytics" className="btn-ghost inline-flex">
+          <Link href="/teacher/analytics" className="btn-secondary">
             Open Analytics
           </Link>
-          <Link href="/teacher/premium" className="btn-ghost inline-flex">
+          <Link href="/teacher/premium" className="btn-secondary">
             Premium Tier
           </Link>
         </div>
-      </section>
-
-      <section className="grid gap-3 lg:grid-cols-2">
-        <SimpleBarChart
-          title="Class Activity"
-          points={[
-            { label: "Students", value: students },
-            { label: "Attempts", value: attempts },
-            { label: "Uploads", value: uploads },
-            { label: "Active 7d", value: activeStudents },
-          ]}
-        />
-        <SimpleLineChart title="Average Score Trend (7 Days)" points={daily} />
       </section>
     </div>
   );

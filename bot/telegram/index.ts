@@ -15,6 +15,8 @@ if (!token) {
 
 const bot = new TelegramBot(token, { polling: false });
 const userLanguage = new Map<number, Language>();
+const conversationMemory = new Map<number, { role: "user" | "ai"; content: string }[]>();
+const MAX_MEMORY_TURNS = 12;
 
 const HELP = [
   "Askuala bot is running.",
@@ -61,16 +63,34 @@ async function runTutorPrompt(prompt: string): Promise<string> {
   }
 }
 
-async function askTutor(question: string, lang: Language): Promise<string> {
+async function askTutor(question: string, lang: Language, userId?: number): Promise<string> {
+  const history = getHistory(userId);
   const prompt = [
     "You are Askuala tutor. Keep responses concise, clear, and student-friendly.",
     "Use professional plain text formatting with numbering and bullet points only.",
     "Do not use markdown symbols like **, *, `, or ###.",
     languageInstruction(lang),
+    history.length
+      ? `Conversation history:\n${history
+          .map((m, i) => `${i + 1}. ${m.role.toUpperCase()}: ${m.content}`)
+          .join("\n")}`
+      : "Conversation history: (none)",
     `Question: ${question}`,
   ].join("\n");
   const raw = await runTutorPrompt(prompt);
   return toPlainTutorText(raw);
+}
+
+function getHistory(userId?: number) {
+  if (!userId) return [];
+  return conversationMemory.get(userId) ?? [];
+}
+
+function pushHistory(userId: number | undefined, role: "user" | "ai", content: string) {
+  if (!userId || !content.trim()) return;
+  const existing = conversationMemory.get(userId) ?? [];
+  const next = [...existing, { role, content: content.trim() }].slice(-MAX_MEMORY_TURNS);
+  conversationMemory.set(userId, next);
 }
 
 function normalizeLang(input: string): Language | null {
@@ -96,7 +116,9 @@ bot.onText(/\/ask(?:\s+([\s\S]+))?/, async (msg: Message, match) => {
 
   await bot.sendChatAction(msg.chat.id, "typing");
   try {
-    const answer = await askTutor(question, getLang(msg.from?.id));
+    const answer = await askTutor(question, getLang(msg.from?.id), msg.from?.id);
+    pushHistory(msg.from?.id, "user", question);
+    pushHistory(msg.from?.id, "ai", answer);
     await bot.sendMessage(msg.chat.id, answer.slice(0, 4000));
   } catch (error) {
     console.error("[telegram] ask failed", error);
@@ -264,7 +286,9 @@ bot.on("text", async (msg: Message) => {
   if (text.length < 120) {
     await bot.sendChatAction(msg.chat.id, "typing");
     try {
-      const answer = await askTutor(text, getLang(msg.from?.id));
+      const answer = await askTutor(text, getLang(msg.from?.id), msg.from?.id);
+      pushHistory(msg.from?.id, "user", text);
+      pushHistory(msg.from?.id, "ai", answer);
       await bot.sendMessage(msg.chat.id, answer.slice(0, 4000));
     } catch (error) {
       console.error("[telegram] short text ask failed", error);
@@ -321,7 +345,9 @@ bot.on("voice", async (msg: Message) => {
       return;
     }
 
-    const answer = await askTutor(transcript, getLang(msg.from?.id));
+    const answer = await askTutor(transcript, getLang(msg.from?.id), msg.from?.id);
+    pushHistory(msg.from?.id, "user", transcript);
+    pushHistory(msg.from?.id, "ai", answer);
     await bot.sendMessage(
       msg.chat.id,
       `You said: ${transcript}\n\n${answer.slice(0, 3600)}`,

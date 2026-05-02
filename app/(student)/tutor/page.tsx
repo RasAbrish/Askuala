@@ -22,6 +22,22 @@ export default async function TutorPage({
     : { data: null as { language_pref: Language } | null };
 
   const language = (profile?.language_pref ?? "en") as Language;
+  let historyQuery = supabase
+    .from("chat_messages")
+    .select("role, content, created_at")
+    .eq("student_id", user?.id ?? "")
+    .order("created_at", { ascending: true })
+    .limit(30);
+
+  if (searchParams.chapter) {
+    historyQuery = historyQuery.eq("chapter_id", searchParams.chapter).is("upload_id", null);
+  } else {
+    historyQuery = historyQuery.is("chapter_id", null).is("upload_id", null);
+  }
+  const { data: historyRows } = user ? await historyQuery : { data: [] as { role: "user" | "ai"; content: string }[] };
+  const initialMessages = (historyRows ?? [])
+    .map((m) => ({ role: m.role, content: m.content?.trim() ?? "" }))
+    .filter((m) => m.content.length > 0);
 
   return (
     <div className="space-y-4">
@@ -35,6 +51,7 @@ export default async function TutorPage({
       </div>
       <ChatPanel
         chapterId={searchParams.chapter}
+        initialMessages={initialMessages}
         language={language}
         suggestions={[
           tUi(language, "tutor.suggestionsExplain"),

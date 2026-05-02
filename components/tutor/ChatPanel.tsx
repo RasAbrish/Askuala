@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { MessageSquare } from "lucide-react";
 import { tUi } from "@/lib/i18n/ui";
 import type { Language } from "@/lib/supabase/types";
 
@@ -64,6 +65,10 @@ export function ChatPanel({
   }, [messages, loading]);
 
   useEffect(() => {
+    setMessages(initialMessages);
+  }, [initialMessages]);
+
+  useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "0px";
@@ -123,12 +128,13 @@ export function ChatPanel({
   async function send(text: string) {
     if (!text.trim() || loading) return;
     const userMsg: Message = { role: "user", content: text.trim() };
-    setMessages((m) => [...m, userMsg, { role: "ai", content: "" }]);
+    const nextMessages = [...messages, userMsg];
+    setMessages([...nextMessages, { role: "ai", content: "" }]);
     setInput("");
     setLoading(true);
 
     try {
-      const recentHistory = messages
+      const recentHistory = nextMessages
         .filter((m) => m.content.trim())
         .slice(-10)
         .map((m) => ({ role: m.role, content: m.content }));
@@ -281,41 +287,53 @@ export function ChatPanel({
   }
 
   return (
-    <div className="flex h-[70vh] flex-col rounded-2xl border border-black/5 bg-white shadow-sm">
-      <div className="border-b border-black/5 px-5 py-3">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="font-semibold text-ink">
-            {tUi(language, "tutor.title")}{chapterTitle ? ` · ${chapterTitle}` : ""}
-          </h2>
+    <div className="flex h-[75vh] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
+      {/* Header */}
+      <div className="border-b border-slate-200 bg-gradient-to-r from-primary-50 to-white px-6 py-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white font-bold">
+              AI
+            </div>
+            <div>
+              <h2 className="font-bold text-slate-800">
+                {tUi(language, "tutor.title")}{chapterTitle ? ` · ${chapterTitle}` : ""}
+              </h2>
+              <p className="text-xs text-slate-500">
+                {tUi(language, "tutor.grounded")}
+              </p>
+            </div>
+          </div>
           <button
             type="button"
             onClick={speakLastAnswer}
             disabled={voiceBusy}
-            className="btn-ghost text-xs disabled:opacity-60"
+            className="btn-secondary text-xs disabled:opacity-60"
           >
             🔊 {tUi(language, "tutor.readAnswer")}
           </button>
         </div>
-        <p className="text-xs text-ink/50">
-          {tUi(language, "tutor.grounded")}
-        </p>
       </div>
 
-      <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
+      {/* Messages Area */}
+      <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto bg-slate-50 px-6 py-6">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-10 text-center text-ink/50">
-            <p className="mb-4 text-sm">
+          <div className="flex h-full flex-col items-center justify-center text-center">
+            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary-100 text-primary">
+              <MessageSquare className="h-10 w-10" />
+            </div>
+            <p className="mt-4 text-sm font-medium text-slate-600">
               {chapterId || uploadId
                 ? tUi(language, "tutor.chapterHint")
                 : tUi(language, "tutor.generalHint")}
             </p>
             {suggestions.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="mt-6 flex flex-wrap justify-center gap-2">
                 {suggestions.map((s) => (
                   <button
                     key={s}
                     onClick={() => send(s)}
-                    className="rounded-full border border-black/10 bg-paper px-3 py-1 text-xs hover:bg-primary-50"
+                    className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-all hover:border-primary hover:bg-primary-50 hover:text-primary"
                   >
                     {s}
                   </button>
@@ -333,49 +351,38 @@ export function ChatPanel({
           )}
       </div>
 
+      {/* Input Area */}
       <form
-        className="border-t border-black/5 p-3"
+        className="border-t border-slate-200 bg-white p-4"
         onSubmit={(e) => {
           e.preventDefault();
           send(input);
         }}
       >
-        <div className="mb-2 flex flex-wrap items-center gap-2">
-          <button type="button" className="btn-ghost text-xs" onClick={() => insertTemplate("Important point: ")}>
-            Important
-          </button>
-          <button type="button" className="btn-ghost text-xs" onClick={() => insertTemplate("Definition: ")}>
-            Definition
-          </button>
-          <button type="button" className="btn-ghost text-xs" onClick={() => insertTemplate("Example: ")}>
-            Example
-          </button>
-          <button type="button" className="btn-ghost text-xs" onClick={() => insertTemplate("- ")}>
-            Bullet List
-          </button>
+        <div className="mb-3 flex flex-wrap items-center gap-2">
           <select
-            className="input h-9 w-auto min-w-[160px] py-1 text-xs"
+            className="input h-10 w-auto min-w-[140px] py-2 text-xs"
             value={depth}
             onChange={(e) => setDepth(e.target.value as typeof depth)}
           >
-            <option value="brief">Depth: Brief</option>
-            <option value="standard">Depth: Standard</option>
-            <option value="detailed">Depth: Detailed</option>
+            <option value="brief">Brief</option>
+            <option value="standard">Standard</option>
+            <option value="detailed">Detailed</option>
           </select>
           <select
-            className="input h-9 w-auto min-w-[190px] py-1 text-xs"
+            className="input h-10 w-auto min-w-[160px] py-2 text-xs"
             value={style}
             onChange={(e) => setStyle(e.target.value as typeof style)}
           >
-            <option value="explain">Style: Concept First</option>
-            <option value="examples">Style: Example Driven</option>
-            <option value="step_by_step">Style: Step-by-Step</option>
+            <option value="explain">Concept First</option>
+            <option value="examples">Example Driven</option>
+            <option value="step_by_step">Step-by-Step</option>
           </select>
         </div>
-        <div className="flex items-end gap-2">
+        <div className="flex items-end gap-3">
           <textarea
             ref={textareaRef}
-            className="input min-h-[92px] max-h-[220px] flex-1 resize-none overflow-y-auto"
+            className="input min-h-[80px] max-h-[200px] flex-1 resize-none overflow-y-auto"
             placeholder={
               chapterId || uploadId
                 ? tUi(language, "tutor.placeholderMaterial")
@@ -393,29 +400,18 @@ export function ChatPanel({
             }}
             disabled={loading}
           />
-          <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
             <button
               type="button"
               onClick={toggleVoiceInput}
               disabled={loading || voiceBusy || !recognitionRef.current}
-              className={`btn-ghost ${listening ? "bg-primary-50 text-primary" : ""}`}
+              className={`btn-secondary h-12 w-12 p-0 ${listening ? "bg-primary-100 text-primary" : ""}`}
               title={listening ? "Listening now" : "Start speech recognition"}
             >
-              {listening ? `🎙️ ${tUi(language, "tutor.listening")}` : `🎤 ${tUi(language, "tutor.voice")}`}
+              {listening ? "🎙️" : "🎤"}
             </button>
             <button
-              type="button"
-              onClick={toggleRecordAndTranscribe}
-              disabled={loading || voiceBusy}
-              className={`btn-ghost ${recording ? "bg-primary-50 text-primary" : ""}`}
-              title={recording ? "Stop recording and transcribe" : "Record voice and transcribe"}
-            >
-              {recording
-                ? `⏹ ${tUi(language, "common.close")}`
-                : `⏺ ${tUi(language, "tutor.voice")}`}
-            </button>
-            <button
-              className="btn-primary"
+              className="btn-primary h-12 px-6"
               type="submit"
               disabled={loading || voiceBusy || !input.trim()}
               title="Send message to AI tutor"
@@ -425,7 +421,7 @@ export function ChatPanel({
           </div>
         </div>
       </form>
-      {voiceError && <p className="px-3 pb-3 text-xs text-red-500">{voiceError}</p>}
+      {voiceError && <p className="px-4 pb-3 text-xs text-red-500">{voiceError}</p>}
     </div>
   );
 }
@@ -435,10 +431,10 @@ function Bubble({ role, content }: Message) {
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2 text-sm leading-relaxed ${
+        className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-5 py-3 text-sm leading-relaxed shadow-sm ${
           isUser
             ? "bg-primary text-white"
-            : "bg-paper text-ink border border-black/5"
+            : "bg-white text-slate-800 border border-slate-200"
         }`}
       >
         {content || "…"}

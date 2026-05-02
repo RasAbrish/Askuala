@@ -19,10 +19,10 @@ export default async function UploadPage() {
   const language = (profile?.language_pref ?? "en") as Language;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="mx-auto w-full max-w-2xl space-y-4 px-4 sm:px-0">
       <div>
-        <h1 className="text-2xl font-bold text-ink">{tUi(language, "dashboard.dropAnything")}</h1>
-        <p className="text-sm text-ink/60">
+        <h1 className="text-xl font-bold text-ink sm:text-2xl">{tUi(language, "dashboard.dropAnything")}</h1>
+        <p className="text-xs text-ink/60 sm:text-sm">
           {tUi(language, "dashboard.uploadDesc")}
         </p>
       </div>
