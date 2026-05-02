@@ -21,7 +21,7 @@ export default async function AdminLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, grade, role")
+    .select("full_name, grade, role, language_pref")
     .eq("id", user.id)
     .single();
 
